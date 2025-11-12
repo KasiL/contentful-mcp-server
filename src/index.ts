@@ -76,10 +76,14 @@ export default async function createServer({
 
 // Keep STDIO support for local development and CLI usage
 // Only run if this file is executed directly (not imported by Smithery)
-if (
-  import.meta.url.endsWith(process.argv[1] || '') ||
-  process.argv[1]?.includes('index.js')
-) {
+// Check if running as a script - works with both ESM and CJS output
+// When imported by Smithery, process.argv[1] won't match our script path
+const isMainModule =
+  process.argv[1]?.endsWith('index.js') ||
+  process.argv[1]?.includes('contentful-mcp-server') ||
+  process.argv[1]?.includes('build/index.js');
+
+if (isMainModule) {
   if (process.env.NODE_ENV === 'development') {
     try {
       await import('mcps-logger/console');
